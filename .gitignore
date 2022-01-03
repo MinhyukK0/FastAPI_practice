@@ -191,9 +191,7 @@ tags
 !.vscode/*.code-snippets
 
 # pycache
-
-*/__pycache__
-*/__pycache__/*
+__pycache__/
 .vscode/settings.json
 
 
