@@ -1,11 +1,8 @@
 import sys
 from fastapi.exceptions import HTTPException
-from pydantic import fields
-
+from datetime import datetime
 from pydantic.main import BaseModel
-from sqlalchemy.orm.relationships import remote
-from starlette.responses import JSONResponse, Response
-from starlette.status import HTTP_404_NOT_FOUND
+from starlette.responses import JSONResponse
 from api.user import get_user_by_token, get_user_exception
 sys.path.append("..")
 
@@ -23,8 +20,8 @@ def get_db():
         db.close()
 
 router = APIRouter(
-    prefix='/account',
-    tags=['account'],
+    prefix="/accounts",
+    tags=["account"],
     responses={401 : {"account" : "invalid"}}
 )
 
@@ -33,7 +30,7 @@ class Account(BaseModel):
     memo : str = Field(max_length=500)
 
 
-@router.post('')
+@router.post("")
 async def create_account(
                         account: Account,
                         user: dict = Depends(get_user_by_token),
@@ -52,23 +49,23 @@ async def create_account(
     return JSONResponse({"message" : "CREATE_SUCCESS"}, status_code=201)
 
 
-@router.get('')
+@router.get("")
 async def get_all_accounts(user: dict = Depends(get_user_by_token), db: Session = Depends(get_db)):
     if user is None:
         raise get_user_exception()
 
-    accounts = db.query(models.Account).filter(models.Account.user_id == user.get('id'), models.Account.is_removed == False).all()
+    accounts = db.query(models.Account).filter(models.Account.user_id == user.get("id"), models.Account.is_removed == False).all()
     results = [{"id" : account.id, "금액" : account.price, "메모" : account.memo, "사용자" : account.user.username}for account in accounts]
     return JSONResponse({"result" : results}, status_code = 200)
 
-@router.put('/{account_id}')
-async def create_account(
+@router.put("/{account_id}")
+async def update_account(
                         account: Account,
                         account_id : int,
                         user: dict = Depends(get_user_by_token),
                         db: Session = Depends(get_db)):
     
-    account_model = db.query(models.Account).filter(models.Account.id == account_id, models.Account.user_id == user.get('id')).first()
+    account_model = db.query(models.Account).filter(models.Account.id == account_id, models.Account.user_id == user.get("id")).first()
 
     if account_model is None:
         return get_user_exception()
@@ -76,18 +73,19 @@ async def create_account(
     account_model.price = account.price
     account_model.memo = account.memo
     account_model.user_id = user.get("id")
+    account_model.updated_at = datetime.now()
 
     db.add(account_model)
     db.commit()
 
     return JSONResponse({"message" : "UPDATE_SUCCESS"}, status_code=201)
 
-@router.delete('/{account_id}')
+@router.delete("/{account_id}")
 async def delete_selected_account(
                                 account_id : int,
                                 user : dict = Depends(get_user_by_token),
                                 db : Session = Depends(get_db)):
-    account = db.query(models.Account).filter(models.Account.id == account_id, models.Account.user_id == user.get('id')).first()
+    account = db.query(models.Account).filter(models.Account.id == account_id, models.Account.user_id == user.get("id")).first()
 
     if account is None:
         raise item_not_found()
@@ -98,16 +96,16 @@ async def delete_selected_account(
 
     return JSONResponse({"message" : "DELETE_SUCCESS"}, status_code=200)
 
-@router.get('/removed')
+@router.get("/removed")
 async def get_removed_account(user : dict = Depends(get_user_by_token), db : Session = Depends(get_db)):
     if user is None:
         raise get_user_exception()
 
-    accounts = db.query(models.Account).filter(models.Account.user_id == user.get('id'), models.Account.is_removed == True).all()
+    accounts = db.query(models.Account).filter(models.Account.user_id == user.get("id"), models.Account.is_removed == True).all()
     results = [{"id" : account.id, "금액" : account.price, "메모" : account.memo, "사용자" : account.user.username}for account in accounts]
     return JSONResponse({"result" : results}, status_code = 200)
 
-@router.patch('/removed/{account_id}')
+@router.patch("/removed/{account_id}")
 async def restore_account(account_id : int ,user : dict = Depends(get_user_by_token), db : Session = Depends(get_db)):
     if user is None:
         raise get_user_exception()
@@ -121,7 +119,6 @@ async def restore_account(account_id : int ,user : dict = Depends(get_user_by_to
     db.commit()
     
     return JSONResponse({"message" : "RESTORE_SUCCESS"}, status_code= 200)
-
 
 def item_not_found():
     item_exception = HTTPException(
