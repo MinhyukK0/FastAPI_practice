@@ -1,9 +1,8 @@
+from datetime import datetime
 import sys
-
-from sqlalchemy.sql.expression import column
 sys.path.append("..")
 
-from sqlalchemy import Boolean, Column, Integer, String, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, String, ForeignKey,DateTime
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -24,5 +23,7 @@ class Account(Base):
     memo = Column(String(500), default="")
     user_id  = Column(Integer, ForeignKey("users.id"))
     is_removed = Column(Boolean, default=False)
+    created_at = Column(DateTime, default = datetime.now())
+    updated_at = Column(DateTime, default = datetime.now())
 
     user = relationship("User", back_populates="account")
