@@ -52,7 +52,7 @@ async def delete_account(account_id: int, user: dict = Depends(get_user_by_token
 
 
 @router.get("/removed")
-async def get_removed_account(user: dict = Depends(get_user_by_token)):
+async def get_removed_accounts(user: dict = Depends(get_user_by_token)):
 
     results = read_removed_account(user=user)
 

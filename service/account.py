@@ -101,7 +101,7 @@ def remove_account(account_id: int, user: dict):
     session.commit()
 
 
-def read_removed_account(user: dict):
+def read_removed_accounts(user: dict):
     user_id = user.get("id")
 
     if user_id is None:
