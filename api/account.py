@@ -7,14 +7,14 @@ from starlette.responses import JSONResponse
 from service.account import (
     create_account,
     read_accounts,
-    read_removed_account,
+    read_removed_accounts,
     remove_account,
     update_account,
     update_removed_account,
 )
 from service.auth import get_user_by_token
 from fastapi import APIRouter, Depends, status
-from models.models import CreateAccount
+from models.accounts import CreateAccount
 
 router = APIRouter(prefix="/accounts", tags=["account"])
 
@@ -54,7 +54,7 @@ async def delete_account(account_id: int, user: dict = Depends(get_user_by_token
 @router.get("/removed")
 async def get_removed_accounts(user: dict = Depends(get_user_by_token)):
 
-    results = read_removed_account(user=user)
+    results = read_removed_accounts(user=user)
 
     return JSONResponse({"result": results}, status_code=status.HTTP_200_OK)
 
