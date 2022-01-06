@@ -4,7 +4,7 @@ sys.path.append("..")
 
 from fastapi import Depends, HTTPException, status
 from typing import Optional
-from models import users
+from models.users import User
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
@@ -49,7 +49,7 @@ def token_exception():
 
 
 def authenticate_user(username: str, password: str):
-    user = session.query(users.User).filter(users.User.username == username).first()
+    user = session.query(User).filter(User.username == username).first()
 
     if not user:
         return None
