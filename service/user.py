@@ -9,7 +9,7 @@ from service.auth import (
     hash_password,
 )
 from fastapi import Depends
-from models import users
+from models.users import User
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from fastapi.security import OAuth2PasswordRequestForm
@@ -26,7 +26,7 @@ def get_db():
 
 
 async def create_user(user: CreateUser, db: Session = Depends(get_db)):
-    new_user = user.User()
+    new_user = User()
     new_user.username = user.username
     new_user.email = user.email
     new_user.password = hash_password(user.password)
