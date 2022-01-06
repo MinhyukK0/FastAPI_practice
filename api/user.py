@@ -8,7 +8,7 @@ from starlette.responses import JSONResponse
 from fastapi import Depends, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from service.user import create_user, create_user_token
-from models.models import CreateUser
+from models.users import CreateUser
 
 router = APIRouter(
     prefix="/users",

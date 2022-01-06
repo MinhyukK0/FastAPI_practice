@@ -1,11 +1,10 @@
-from fastapi import FastAPI, Depends
-from models import models
-from database import engine
+from fastapi import FastAPI
+from database import engine, Base
 from api import user, account
 
 app = FastAPI()
 
-models.Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 app.include_router(user.router)
 app.include_router(account.router)

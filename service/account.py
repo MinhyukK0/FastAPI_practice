@@ -7,8 +7,7 @@ from datetime import datetime
 from service.auth import get_user_exception
 from sqlalchemy.orm import Session
 from database import engine
-from models import models
-from models.models import CreateAccount
+from models.accounts import CreateAccount, Account
 
 session = Session(bind=engine)
 
@@ -22,7 +21,7 @@ def create_account(account: CreateAccount, user: dict):
     if user is None:
         raise get_user_exception()
 
-    account_model = models.Account()
+    account_model = Account()
     account_model.price = account.price
     account_model.memo = account.memo
     account_model.user_id = user.get("id")
@@ -36,9 +35,10 @@ def read_accounts(user: dict):
         raise get_user_exception()
 
     accounts = (
-        session.query(models.Account)
+        session.query(Account)
         .filter(
-            models.Account.user_id == user.get("id"), models.Account.is_removed == False
+            Account.user_id == user.get("id"),
+            Account.is_removed == False,
         )
         .all()
     )
@@ -62,8 +62,8 @@ def update_account(account: CreateAccount, account_id: int, user: dict):
         raise get_user_exception()
 
     account_model = (
-        session.query(models.Account)
-        .filter(models.Account.id == account_id, models.Account.user_id == user_id)
+        session.query(Account)
+        .filter(Account.id == account_id, Account.user_id == user_id)
         .first()
     )
 
@@ -86,9 +86,10 @@ def remove_account(account_id: int, user: dict):
         raise get_user_exception()
 
     account = (
-        session.query(models.Account)
+        session.query(Account)
         .filter(
-            models.Account.id == account_id, models.Account.user_id == user.get("id")
+            Account.id == account_id,
+            Account.user_id == user.get("id"),
         )
         .first()
     )
@@ -107,9 +108,9 @@ def read_removed_accounts(user: dict):
     if user_id is None:
         raise get_user_exception()
 
-    accounts = (
-        session.query(models.Account)
-        .filter(models.Account.user_id == user_id, models.Account.is_removed == True)
+    removed_accounts = (
+        session.query(Account)
+        .filter(Account.user_id == user_id, Account.is_removed == True)
         .all()
     )
 
@@ -120,7 +121,7 @@ def read_removed_accounts(user: dict):
             "메모": account.memo,
             "사용자": account.user.username,
         }
-        for account in accounts
+        for account in removed_accounts
     ]
 
 
@@ -131,11 +132,11 @@ def update_removed_account(account_id: int, user: dict):
         raise get_user_exception()
 
     account = (
-        session.query(models.Account)
+        session.query(Account)
         .filter(
-            models.Account.id == account_id,
-            models.Account.user_id == user.get("id"),
-            models.Account.is_removed == True,
+            Account.id == account_id,
+            Account.user_id == user.get("id"),
+            Account.is_removed == True,
         )
         .first()
     )
